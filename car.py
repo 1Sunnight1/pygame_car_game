@@ -1,4 +1,6 @@
 from random import randint
+import os
+import json
 
 import pygame
 import pygame_menu
@@ -26,9 +28,25 @@ class Generators:
             white_line.append([380,-100])
         return white_line       
    
+#загрузка таблицы   
+def load_score():
+    os.makedirs("table_score",exist_ok=True)
+    score_path = os.path.join("table_score","scores.json")
+    if os.path.exists(score_path):
+        with open(score_path,"r") as f:
+            return json.load(f)
+    return []
+
+#сохранение счета
+def save_score(scores):
+    os.makedirs("table_score",exist_ok=True)
+    score_path = os.path.join("table_score", "scores.json")
+    with open(score_path, "w") as f:
+        json.dump(scores, f)        
 
 #главная функция
 def start_game(screen):
+    scores = load_score()
 
     player_image = pygame.image.load("image/player.png").convert_alpha()
     player_image = pygame.transform.scale(player_image,(80,110))
@@ -46,8 +64,8 @@ def start_game(screen):
     max_score = 0
     paused = False
     shake_timer = 0
-    shake_ofset_x = 0
-    shake_ofset_y = 0
+    shake_offset_x = 0
+    shake_offset_y = 0
 
     #основой цикл
     while True:
@@ -75,17 +93,17 @@ def start_game(screen):
             #тряска игрока при столкновении
             if shake_timer > 0:
                 shake_timer -= 1
-                shake_ofset_x = randint(-5,5)
-                shake_ofset_y = randint(-5,5)
+                shake_offset_x = randint(-5,5)
+                shake_offset_y = randint(-5,5)
             else:
-                shake_ofset_y = 0
-                shake_ofset_x = 0
+                shake_offset_y = 0
+                shake_offset_x = 0
 
             #машинка игрока отрисовка
             car_x, car_y = control_player(car_x,car_y)
             car_x = max(150,min(520,car_x)) #ограничение по длине
             car_y = max(0,min(390,car_y)) #ограничение по ширине                
-            screen.blit(player_image,(car_x+shake_ofset_x,car_y+shake_ofset_y,))
+            screen.blit(player_image,(car_x+shake_offset_x,car_y+shake_offset_y))
 
             #отрисовка вражеских машин на поле
             enemy_cars = Generators.create_enemy_car(enemy_cars,freame_count)
@@ -124,6 +142,7 @@ def main():
     menu = pygame_menu.Menu('Welcome!',600,300,theme = pygame_menu.themes.THEME_BLUE)
     menu.add.text_input('Name:',default = 'Player')
     menu.add.button("Play",start_game,screen)
+    menu.add.button("Score",,screen)
     menu.add.button("Quit",pygame_menu.events.EXIT)
     
     menu.mainloop(screen)
