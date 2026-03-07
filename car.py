@@ -94,8 +94,8 @@ def start_game(screen):
                 screen.blit(enemy_image,(e_car[0],e_car[1]))
                 if e_car[0]==740:
                     enemy_cars.remove(e_car)  #удаление машин после конца пути
-                if (e_car[0] < car_x + 80 and e_car[0] + 80 > car_x and 
-                    e_car[1] < car_y + 110 and e_car[1] + 100 > car_y):
+                if (e_car[0] < car_x + 75 and e_car[0] + 75 > car_x and 
+                    e_car[1] < car_y + 105 and e_car[1] + 105 > car_y):
                     if max_score<freame_count/60:
                         max_score = freame_count/60
                     freame_count = 0  # обнуление счета
