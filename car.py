@@ -17,12 +17,14 @@ def control_player(x,y):
 
 class Generators:
 #генерация вражеских машинок
+    @staticmethod
     def create_enemy_car(enemy_cars=list(),frame_count = 0):
         import random
         if frame_count%60 == 0:
             enemy_cars.append([random.randint(150,520),-120])
         return enemy_cars
     #генерация белых линий
+    @staticmethod
     def create_white_line(white_line,frame_count = 0):
         if frame_count % 60 == 0:
             white_line.append([380,-100])
@@ -58,7 +60,7 @@ def start_game(screen):
     is_blue = True
     car_x = 340
     car_y = 340
-    freame_count = 0
+    frame_count = 0
     enemy_cars = list()
     white_lines =list()
     max_score = 0
@@ -67,7 +69,7 @@ def start_game(screen):
     shake_offset_x = 0
     shake_offset_y = 0
 
-    #основой цикл
+    #основой цикл игры
     while True:
 
         for event in pygame.event.get():
@@ -80,10 +82,10 @@ def start_game(screen):
         #очищает весь экран чёрным цветом
         screen.fill((0,0,0))    
         if not paused:
-            freame_count += 1
+            frame_count += 1
             # дорога
             pygame.draw.rect(screen, (100,100,100), pygame.Rect(150, 0, 450, 500))#  серая
-            white_lines = Generators.create_white_line(white_lines,freame_count)
+            white_lines = Generators.create_white_line(white_lines,frame_count)
             for line in white_lines[:]:
                 line[1]+=3
                 pygame.draw.rect(screen, (255,255,255), pygame.Rect(380, line[1], 20, 75))#  белые полосы
@@ -106,7 +108,7 @@ def start_game(screen):
             screen.blit(player_image,(car_x+shake_offset_x,car_y+shake_offset_y))
 
             #отрисовка вражеских машин на поле
-            enemy_cars = Generators.create_enemy_car(enemy_cars,freame_count)
+            enemy_cars = Generators.create_enemy_car(enemy_cars,frame_count)
             for e_car in enemy_cars[:]:
                 e_car[1]+=3
                 screen.blit(enemy_image,(e_car[0],e_car[1]))
@@ -114,16 +116,16 @@ def start_game(screen):
                     enemy_cars.remove(e_car)  #удаление машин после конца пути
                 if (e_car[0] < car_x + 75 and e_car[0] + 75 > car_x and 
                     e_car[1] < car_y + 105 and e_car[1] + 105 > car_y):
-                    if max_score<freame_count/60:
-                        max_score = freame_count/60
-                    freame_count = 0  # обнуление счета
+                    if max_score<frame_count/60:
+                        max_score = frame_count/60
+                    frame_count = 0  # обнуление счета
                     #удаление вражеской машинки и тряска для машинки игрока
                     enemy_cars.remove(e_car)                
                     shake_timer = 300
 
             #вывод счеткика
             font = pygame.font.Font(None,30)
-            text = font.render(f'счет: {str(int(freame_count/60))}',True,(255,255,255))
+            text = font.render(f'счет: {str(int(frame_count/60))}',True,(255,255,255))
             screen.blit(text, (650,10))
             text = font.render(f'max: {str(int(max_score))}',True,(255,255,255))
             screen.blit(text, (650,50))        
@@ -142,7 +144,7 @@ def main():
     menu = pygame_menu.Menu('Welcome!',600,300,theme = pygame_menu.themes.THEME_BLUE)
     menu.add.text_input('Name:',default = 'Player')
     menu.add.button("Play",start_game,screen)
-    menu.add.button("Score",,screen)
+    #menu.add.button("Score",,screen)
     menu.add.button("Quit",pygame_menu.events.EXIT)
     
     menu.mainloop(screen)
