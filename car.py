@@ -19,9 +19,8 @@ class Generators:
 #генерация вражеских машинок
     @staticmethod
     def create_enemy_car(enemy_cars=list(),frame_count = 0):
-        import random
         if frame_count%60 == 0:
-            enemy_cars.append([random.randint(150,520),-120])
+            enemy_cars.append([randint(150,520),-120])
         return enemy_cars
     #генерация белых линий
     @staticmethod
@@ -46,13 +45,43 @@ def save_score(scores):
     with open(score_path, "w") as f:
         json.dump(scores, f)        
 
-#главная функция
-def start_game(screen):
+#функция показа лидеров игры
+def show_scoreboard(screen):
     scores = load_score()
+    clock = pygame.time.Clock()
 
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                return
+            screen.fill((0,0,0))
+
+            font_title = pygame.font.Font(None,60)
+            title = font_title.render("Leaders", True, (255,255,255))
+
+            font = pygame.font.Font(None,40)
+            y_pos = 150
+            for i,(name,score) in enumerate(scores[:10],1):
+                text = font.render(f"{i}.{name}: {score}", True,(200,200,200))
+                screen.blit(text,(200,y_pos))
+                y_pos +=50
+            
+            font_small = pygame.font.Font(None,35)
+            back_text = font_small.render("ESC-menu",True,(200,200,200))
+            screen.blit(back_text,(200,450))
+
+            clock.tick(60)
+            pygame.display.flip()
+
+#главная функция
+def start_game(screen, name):
+
+    player_name = name
+    scores = load_score()
+    # загрузка картинки игрока
     player_image = pygame.image.load("image/player.png").convert_alpha()
     player_image = pygame.transform.scale(player_image,(80,110))
-
+    # загрузка картинки противника
     enemy_image = pygame.image.load("image/ecar.png").convert_alpha()
     enemy_image = pygame.transform.scale(enemy_image,(80,110))
 
@@ -63,7 +92,7 @@ def start_game(screen):
     frame_count = 0
     enemy_cars = list()
     white_lines =list()
-    max_score = 0
+    max_score = int(0)
     paused = False
     shake_timer = 0
     shake_offset_x = 0
@@ -75,9 +104,15 @@ def start_game(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or(event.type == pygame.KEYDOWN 
                                             and event.key == pygame.K_ESCAPE):
+                if max_score > 0 :                
+                    scores.append([player_name , int(max_score)])
+                    scores.sort(key = lambda x: x[1],reverse=True)
+                    scores = scores[:5]
+                    save_score(scores)
                 return
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 paused = not paused
+
 
         #очищает весь экран чёрным цветом
         screen.fill((0,0,0))    
@@ -141,10 +176,16 @@ def start_game(screen):
 def main():
     pygame.init()
     screen = pygame.display.set_mode((800,500))
+
     menu = pygame_menu.Menu('Welcome!',600,300,theme = pygame_menu.themes.THEME_BLUE)
-    menu.add.text_input('Name:',default = 'Player')
-    menu.add.button("Play",start_game,screen)
-    #menu.add.button("Score",,screen)
+    widget_name = menu.add.text_input('Name:',default = 'Player')
+    def play_with_name():
+        global player_name
+        player_name = widget_name.get_value()
+        start_game(screen, player_name)
+
+    menu.add.button("Play",play_with_name)
+    menu.add.button("Score",lambda:show_scoreboard(screen) )
     menu.add.button("Quit",pygame_menu.events.EXIT)
     
     menu.mainloop(screen)

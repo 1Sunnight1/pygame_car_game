@@ -2,3 +2,4 @@ venv/
 env
 __pycashe__/
 *.log
+table_score/
