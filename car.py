@@ -5,6 +5,9 @@ import json
 import pygame
 import pygame_menu
 
+# размеры маашинок
+x_len_car = 60
+y_len_car = 80
 
 #функия контоля игрока
 def control_player(x,y):
@@ -20,7 +23,7 @@ class Generators:
     @staticmethod
     def create_enemy_car(enemy_cars=list(),frame_count = 0):
         if frame_count%60 == 0:
-            enemy_cars.append([randint(150,520),-120])
+            enemy_cars.append([randint(150,600-y_len_car),-120])
         return enemy_cars
     #генерация белых линий
     @staticmethod
@@ -80,10 +83,10 @@ def start_game(screen, name):
     scores = load_score()
     # загрузка картинки игрока
     player_image = pygame.image.load("image/player.png").convert_alpha()
-    player_image = pygame.transform.scale(player_image,(80,110))
+    player_image = pygame.transform.scale(player_image,(x_len_car,y_len_car))
     # загрузка картинки противника
     enemy_image = pygame.image.load("image/ecar.png").convert_alpha()
-    enemy_image = pygame.transform.scale(enemy_image,(80,110))
+    enemy_image = pygame.transform.scale(enemy_image,(x_len_car,y_len_car))
 
     clock = pygame.time.Clock()
     is_blue = True
@@ -149,8 +152,8 @@ def start_game(screen, name):
                 screen.blit(enemy_image,(e_car[0],e_car[1]))
                 if e_car[0]==740:
                     enemy_cars.remove(e_car)  #удаление машин после конца пути
-                if (e_car[0] < car_x + 75 and e_car[0] + 75 > car_x and 
-                    e_car[1] < car_y + 105 and e_car[1] + 105 > car_y):
+                if (e_car[0] < car_x + x_len_car and e_car[0] + x_len_car > car_x and 
+                    e_car[1] < car_y + y_len_car and e_car[1] + y_len_car > car_y):
                     if max_score<frame_count/60:
                         max_score = frame_count/60
                     frame_count = 0  # обнуление счета
