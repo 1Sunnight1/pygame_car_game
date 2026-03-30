@@ -3,3 +3,4 @@ env
 __pycashe__/
 *.log
 table_score/
+__pycashe__
